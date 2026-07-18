@@ -248,7 +248,10 @@ export function WishingWellnessSite({
         </div>
       </section>
 
-      <section className="split-section" id="team">
+      <section
+        className={`split-section ${content.clinicians.length === 0 ? "team-section-empty" : ""}`}
+        id="team"
+      >
         <div className="split-visual">
           <p className="eyebrow">{content.teamEyebrow}</p>
           <h2>{content.teamTitle}</h2>
@@ -257,28 +260,30 @@ export function WishingWellnessSite({
             Request the right specialist
           </a>
         </div>
-        <div className="clinician-list">
-          {content.clinicians.map((clinician) => (
-            <article key={clinician.name}>
-              <div className="avatar">
-                {clinician.imageSrc ? (
-                  <img
-                    src={clinician.imageSrc}
-                    alt={clinician.imageAlt || clinician.name}
-                    style={photoStyle(clinician)}
-                  />
-                ) : (
-                  <span aria-hidden="true">{clinician.name.charAt(0)}</span>
-                )}
-              </div>
-              <div>
-                <h3>{clinician.name}</h3>
-                <p>{clinician.role}</p>
-                <span>{clinician.focus}</span>
-              </div>
-            </article>
-          ))}
-        </div>
+        {content.clinicians.length > 0 && (
+          <div className="clinician-list">
+            {content.clinicians.map((clinician) => (
+              <article key={clinician.name}>
+                <div className="avatar">
+                  {clinician.imageSrc ? (
+                    <img
+                      src={clinician.imageSrc}
+                      alt={clinician.imageAlt || clinician.name}
+                      style={photoStyle(clinician)}
+                    />
+                  ) : (
+                    <span aria-hidden="true">{clinician.name.charAt(0)}</span>
+                  )}
+                </div>
+                <div>
+                  <h3>{clinician.name}</h3>
+                  <p>{clinician.role}</p>
+                  <span>{clinician.focus}</span>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
 
       <section className="testimonials-section" id="testimonials">

@@ -2,6 +2,7 @@
 
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import {
+  ClinicianContent,
   defaultSiteContent,
   mergeSiteContent,
   PhotoContent,
@@ -359,6 +360,60 @@ function ContentEditor() {
     });
   }
 
+  function updateCliniciansJson(value: string) {
+    setCliniciansJson(value);
+    try {
+      const clinicians = parseJson<SiteContent["clinicians"]>(value, "Clinicians");
+      setDraft((current) => ({ ...current, clinicians }));
+    } catch {
+      // Keep the editor permissive while the user is mid-editing JSON.
+    }
+  }
+
+  function updateClinician<K extends keyof ClinicianContent>(
+    index: number,
+    key: K,
+    value: ClinicianContent[K],
+  ) {
+    setDraft((current) => {
+      const clinicians = current.clinicians.map((clinician, clinicianIndex) =>
+        clinicianIndex === index ? { ...clinician, [key]: value } : clinician,
+      );
+      setCliniciansJson(pretty(clinicians));
+      return { ...current, clinicians };
+    });
+  }
+
+  function addClinician() {
+    setDraft((current) => {
+      const clinicians: SiteContent["clinicians"] = [
+        ...current.clinicians,
+        {
+          name: "New specialist",
+          role: "Specialist",
+          focus: "Add focus areas, services and credentials",
+          imageSrc: "",
+          imageAlt: "Specialist profile photo",
+          imageFit: "cover",
+          imagePosition: "50% 50%",
+          imageBrightness: 100,
+          imageContrast: 100,
+          imageSaturation: 100,
+        },
+      ];
+      setCliniciansJson(pretty(clinicians));
+      return { ...current, clinicians };
+    });
+  }
+
+  function removeClinician(index: number) {
+    setDraft((current) => {
+      const clinicians = current.clinicians.filter((_, clinicianIndex) => clinicianIndex !== index);
+      setCliniciansJson(pretty(clinicians));
+      return { ...current, clinicians };
+    });
+  }
+
   function updateTestimonialPhoto(index: number, nextPhoto: PhotoContent) {
     setDraft((current) => {
       const testimonials = current.testimonials.map((testimonial, testimonialIndex) =>
@@ -604,20 +659,56 @@ function ContentEditor() {
         </label>
         <label>
           Clinician cards
-          <textarea value={cliniciansJson} onChange={(event) => setCliniciansJson(event.target.value)} rows={12} />
+          <textarea value={cliniciansJson} onChange={(event) => updateCliniciansJson(event.target.value)} rows={12} />
         </label>
         <p className="editor-hint">
-          Each clinician card can use the upload controls below. The JSON stays available for changing names, roles and focus.
+          Add, edit or remove specialists below. The public profile area adjusts automatically to the number of specialists.
         </p>
-        <div className="photo-editor-list">
+        <div className="specialist-editor-actions">
+          <button className="button secondary" onClick={addClinician} type="button">
+            Add specialist
+          </button>
+        </div>
+        <div className="specialist-editor-list">
           {draft.clinicians.map((clinician, index) => (
-            <ImageEditor
-              key={`${clinician.name}-${index}`}
-              label={clinician.name}
-              photo={clinician}
-              onChange={(photo) => updateClinicianPhoto(index, photo)}
-              onUpload={uploadImage}
-            />
+            <div className="specialist-editor" key={`${clinician.name}-${index}`}>
+              <div className="specialist-editor-header">
+                <strong>{clinician.name || `Specialist ${index + 1}`}</strong>
+                <button className="button danger" onClick={() => removeClinician(index)} type="button">
+                  Remove specialist
+                </button>
+              </div>
+              <div className="specialist-fields">
+                <label>
+                  Name
+                  <input
+                    value={clinician.name}
+                    onChange={(event) => updateClinician(index, "name", event.target.value)}
+                  />
+                </label>
+                <label>
+                  Role
+                  <input
+                    value={clinician.role}
+                    onChange={(event) => updateClinician(index, "role", event.target.value)}
+                  />
+                </label>
+                <label>
+                  Focus
+                  <textarea
+                    value={clinician.focus}
+                    onChange={(event) => updateClinician(index, "focus", event.target.value)}
+                    rows={3}
+                  />
+                </label>
+              </div>
+              <ImageEditor
+                label={`${clinician.name || "Specialist"} photo`}
+                photo={clinician}
+                onChange={(photo) => updateClinicianPhoto(index, photo)}
+                onUpload={uploadImage}
+              />
+            </div>
           ))}
         </div>
         <label>
