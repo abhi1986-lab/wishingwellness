@@ -353,19 +353,8 @@ function ContentEditor() {
     setError("");
     setMessage("");
 
-    let next: SiteContent;
-    try {
-      next = mergeSiteContent({
-        ...draft,
-        heroTrust: parseLines(heroTrustText),
-        bodyAreas: parseLines(bodyAreasText),
-        articles: parseLines(articlesText),
-        approach: parseJson(approachJson, "Approach steps"),
-        services: parseJson(servicesJson, "Services"),
-        clinicians: parseJson(cliniciansJson, "Clinicians"),
-      });
-    } catch (parseError) {
-      setError(parseError instanceof Error ? parseError.message : "Invalid content");
+    const next = buildDraftContent();
+    if (!next) {
       setSaving(false);
       return;
     }
@@ -382,8 +371,35 @@ function ContentEditor() {
       return;
     }
     syncContent(mergeSiteContent(data.content));
-    setMessage("Site content saved. Refresh the public site to see the latest version.");
+    setMessage("Site content published. Refresh the public site to see the latest version.");
     setSaving(false);
+  }
+
+  function buildDraftContent() {
+    try {
+      return mergeSiteContent({
+        ...draft,
+        heroTrust: parseLines(heroTrustText),
+        bodyAreas: parseLines(bodyAreasText),
+        articles: parseLines(articlesText),
+        approach: parseJson(approachJson, "Approach steps"),
+        services: parseJson(servicesJson, "Services"),
+        clinicians: parseJson(cliniciansJson, "Clinicians"),
+      });
+    } catch (parseError) {
+      setError(parseError instanceof Error ? parseError.message : "Invalid content");
+      setMessage("");
+      return null;
+    }
+  }
+
+  function previewDraft() {
+    setError("");
+    setMessage("");
+    const next = buildDraftContent();
+    if (!next) return;
+    localStorage.setItem("wishing-wellness-preview-content", JSON.stringify(next));
+    window.open("/admin/preview", "_blank", "noopener,noreferrer");
   }
 
   useEffect(() => {
@@ -622,8 +638,11 @@ function ContentEditor() {
         <button className="button secondary" onClick={loadContent} type="button">
           Reload
         </button>
+        <button className="button secondary" onClick={previewDraft} type="button">
+          Preview draft
+        </button>
         <button className="button primary" disabled={saving} type="submit">
-          {saving ? "Saving..." : "Save site content"}
+          {saving ? "Publishing..." : "Publish to live site"}
         </button>
       </div>
     </form>

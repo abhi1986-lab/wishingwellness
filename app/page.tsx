@@ -20,15 +20,26 @@ function referenceNumber(prefix: string) {
   return `${prefix}-${Math.floor(100000 + Math.random() * 900000)}`;
 }
 
-export default function Home() {
+export function WishingWellnessSite({
+  previewContent,
+}: {
+  previewContent?: SiteContent;
+}) {
   const [appointmentRef, setAppointmentRef] = useState("");
   const [callbackRef, setCallbackRef] = useState("");
   const [formError, setFormError] = useState("");
-  const [content, setContent] = useState<SiteContent>(defaultSiteContent);
+  const [content, setContent] = useState<SiteContent>(
+    previewContent ?? defaultSiteContent,
+  );
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const contact = content.contact;
 
   useEffect(() => {
+    if (previewContent) {
+      setContent(previewContent);
+      return;
+    }
+
     async function loadContent() {
       const response = await fetch("/api/site-content", { cache: "no-store" });
       if (!response.ok) return;
@@ -37,7 +48,7 @@ export default function Home() {
     }
 
     void loadContent();
-  }, []);
+  }, [previewContent]);
 
   async function submitAppointment(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -472,4 +483,8 @@ export default function Home() {
       </footer>
     </main>
   );
+}
+
+export default function Home() {
+  return <WishingWellnessSite />;
 }
