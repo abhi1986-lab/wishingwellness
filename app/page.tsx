@@ -94,16 +94,67 @@ function referenceNumber(prefix: string) {
 export default function Home() {
   const [appointmentRef, setAppointmentRef] = useState("");
   const [callbackRef, setCallbackRef] = useState("");
+  const [formError, setFormError] = useState("");
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
-  function submitAppointment(event: FormEvent<HTMLFormElement>) {
+  async function submitAppointment(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setAppointmentRef(referenceNumber("WWA"));
+    setFormError("");
+
+    const form = new FormData(event.currentTarget);
+    const response = await fetch("/api/leads", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        leadType: "appointment",
+        name: form.get("name"),
+        phone: form.get("phone"),
+        email: form.get("email"),
+        location: form.get("location"),
+        serviceOrCondition: form.get("service"),
+        preferredDate: form.get("date"),
+        preferredTime: form.get("time"),
+        message: form.get("message"),
+        marketingConsent: form.get("marketingConsent") === "on",
+        privacyConsent: form.get("privacyConsent") === "on",
+        sourcePage: "homepage-appointment-form",
+      }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      setFormError(data.error ?? "Could not submit the appointment request.");
+      return;
+    }
+    setAppointmentRef(data.lead?.reference ?? referenceNumber("WWA"));
+    event.currentTarget.reset();
   }
 
-  function submitCallback(event: FormEvent<HTMLFormElement>) {
+  async function submitCallback(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setCallbackRef(referenceNumber("WWC"));
+    setFormError("");
+
+    const form = new FormData(event.currentTarget);
+    const response = await fetch("/api/leads", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        leadType: "callback",
+        name: form.get("callbackName"),
+        phone: form.get("callbackPhone"),
+        location: "Noida",
+        serviceOrCondition: form.get("callbackService"),
+        preferredTime: form.get("callbackTime"),
+        privacyConsent: form.get("callbackConsent") === "on",
+        sourcePage: "homepage-callback-form",
+      }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      setFormError(data.error ?? "Could not submit the callback request.");
+      return;
+    }
+    setCallbackRef(data.lead?.reference ?? referenceNumber("WWC"));
+    event.currentTarget.reset();
   }
 
   return (
@@ -375,16 +426,21 @@ export default function Home() {
             <textarea name="message" rows={4} />
           </label>
           <label className="check">
-            <input type="checkbox" required />
+            <input name="privacyConsent" type="checkbox" required />
             <span>I agree to the privacy policy and processing of this enquiry.</span>
           </label>
           <label className="check">
-            <input type="checkbox" />
+            <input name="marketingConsent" type="checkbox" />
             <span>I agree to receive wellness updates and follow-up communication.</span>
           </label>
           <button className="button primary" type="submit">
             Submit appointment request
           </button>
+          {formError && (
+            <p className="form-error" role="alert">
+              {formError}
+            </p>
+          )}
           {appointmentRef && (
             <p className="success" role="status">
               Request received. Reference {appointmentRef}. The clinic team will
@@ -407,22 +463,22 @@ export default function Home() {
         <form className="callback-form" onSubmit={submitCallback}>
           <label>
             Name
-            <input required />
+            <input name="callbackName" required />
           </label>
           <label>
             Phone number
-            <input type="tel" required />
+            <input name="callbackPhone" type="tel" required />
           </label>
           <label>
             Service or condition
-            <input required />
+            <input name="callbackService" required />
           </label>
           <label>
             Preferred callback time
-            <input />
+            <input name="callbackTime" />
           </label>
           <label className="check">
-            <input type="checkbox" required />
+            <input name="callbackConsent" type="checkbox" required />
             <span>I consent to being contacted about this enquiry.</span>
           </label>
           <button className="button secondary light" type="submit">
@@ -479,6 +535,7 @@ export default function Home() {
           <strong>Compliance</strong>
           <span>Privacy consent included</span>
           <span>Medical advice requires clinical assessment</span>
+          <a href="/admin">Admin login</a>
         </div>
       </footer>
     </main>

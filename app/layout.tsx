@@ -34,6 +34,10 @@ export const metadata: Metadata = {
       "Integrated pain-management, physiotherapy and rehabilitation care in Noida.",
     images: ["/og.png"],
   },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
