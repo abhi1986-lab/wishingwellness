@@ -1,7 +1,20 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { defaultSiteContent, mergeSiteContent, SiteContent } from "./site-content";
+import {
+  defaultSiteContent,
+  mergeSiteContent,
+  PhotoContent,
+  SiteContent,
+} from "./site-content";
+
+function photoStyle(photo: PhotoContent) {
+  return {
+    objectFit: photo.imageFit ?? "cover",
+    objectPosition: photo.imagePosition ?? "50% 50%",
+    filter: `brightness(${photo.imageBrightness ?? 100}%) contrast(${photo.imageContrast ?? 100}%) saturate(${photo.imageSaturation ?? 100}%)`,
+  };
+}
 
 function referenceNumber(prefix: string) {
   return `${prefix}-${Math.floor(100000 + Math.random() * 900000)}`;
@@ -137,6 +150,13 @@ export default function Home() {
           <img
             src={content.heroImageSrc}
             alt={content.heroImageAlt}
+            style={photoStyle({
+              imageFit: content.heroImageFit,
+              imagePosition: content.heroImagePosition,
+              imageBrightness: content.heroImageBrightness,
+              imageContrast: content.heroImageContrast,
+              imageSaturation: content.heroImageSaturation,
+            })}
           />
         </div>
       </section>
@@ -172,6 +192,7 @@ export default function Home() {
                   <img
                     src={service.imageSrc}
                     alt={service.imageAlt || `${service.title} treatment`}
+                    style={photoStyle(service)}
                   />
                 ) : (
                   service.title.slice(0, 2)
@@ -221,6 +242,7 @@ export default function Home() {
                   <img
                     src={clinician.imageSrc}
                     alt={clinician.imageAlt || clinician.name}
+                    style={photoStyle(clinician)}
                   />
                 ) : (
                   <span aria-hidden="true">{clinician.name.charAt(0)}</span>

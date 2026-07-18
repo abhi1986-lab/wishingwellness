@@ -1,9 +1,10 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import {
   defaultSiteContent,
   mergeSiteContent,
+  PhotoContent,
   SiteContent,
 } from "../site-content";
 
@@ -298,6 +299,40 @@ function ContentEditor() {
     }));
   }
 
+  async function uploadImage(file: File) {
+    const form = new FormData();
+    form.append("file", file);
+    const response = await fetch("/api/uploads", {
+      method: "POST",
+      body: form,
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error ?? "Could not upload image");
+    }
+    return data.url as string;
+  }
+
+  function updateServicePhoto(index: number, nextPhoto: PhotoContent) {
+    setDraft((current) => {
+      const services = current.services.map((service, serviceIndex) =>
+        serviceIndex === index ? { ...service, ...nextPhoto } : service,
+      );
+      setServicesJson(pretty(services));
+      return { ...current, services };
+    });
+  }
+
+  function updateClinicianPhoto(index: number, nextPhoto: PhotoContent) {
+    setDraft((current) => {
+      const clinicians = current.clinicians.map((clinician, clinicianIndex) =>
+        clinicianIndex === index ? { ...clinician, ...nextPhoto } : clinician,
+      );
+      setCliniciansJson(pretty(clinicians));
+      return { ...current, clinicians };
+    });
+  }
+
   async function loadContent() {
     setLoading(true);
     setError("");
@@ -383,12 +418,31 @@ function ContentEditor() {
           <textarea value={draft.heroText} onChange={(event) => update("heroText", event.target.value)} rows={4} />
         </label>
         <label>
-          Hero photo URL or path
-          <input value={draft.heroImageSrc} onChange={(event) => update("heroImageSrc", event.target.value)} />
-        </label>
-        <label>
-          Hero photo alt text
-          <input value={draft.heroImageAlt} onChange={(event) => update("heroImageAlt", event.target.value)} />
+          Hero photo
+          <ImageEditor
+            photo={{
+              imageSrc: draft.heroImageSrc,
+              imageAlt: draft.heroImageAlt,
+              imageFit: draft.heroImageFit,
+              imagePosition: draft.heroImagePosition,
+              imageBrightness: draft.heroImageBrightness,
+              imageContrast: draft.heroImageContrast,
+              imageSaturation: draft.heroImageSaturation,
+            }}
+            onChange={(photo) => {
+              setDraft((current) => ({
+                ...current,
+                heroImageSrc: photo.imageSrc ?? "",
+                heroImageAlt: photo.imageAlt ?? "",
+                heroImageFit: photo.imageFit ?? "cover",
+                heroImagePosition: photo.imagePosition ?? "50% 50%",
+                heroImageBrightness: photo.imageBrightness ?? 100,
+                heroImageContrast: photo.imageContrast ?? 100,
+                heroImageSaturation: photo.imageSaturation ?? 100,
+              }));
+            }}
+            onUpload={uploadImage}
+          />
         </label>
         <label>
           Hero trust badges
@@ -435,8 +489,19 @@ function ContentEditor() {
           <textarea value={servicesJson} onChange={(event) => setServicesJson(event.target.value)} rows={16} />
         </label>
         <p className="editor-hint">
-          Optional for each service: add imageSrc and imageAlt to replace the card visual with a photo.
+          Each treatment card can use the upload controls below. The JSON stays available for changing titles, summaries and tags.
         </p>
+        <div className="photo-editor-list">
+          {draft.services.map((service, index) => (
+            <ImageEditor
+              key={`${service.title}-${index}`}
+              label={service.title}
+              photo={service}
+              onChange={(photo) => updateServicePhoto(index, photo)}
+              onUpload={uploadImage}
+            />
+          ))}
+        </div>
         <label>
           Conditions eyebrow
           <input value={draft.conditionsEyebrow} onChange={(event) => update("conditionsEyebrow", event.target.value)} />
@@ -474,8 +539,19 @@ function ContentEditor() {
           <textarea value={cliniciansJson} onChange={(event) => setCliniciansJson(event.target.value)} rows={12} />
         </label>
         <p className="editor-hint">
-          Optional for each clinician: add imageSrc and imageAlt to replace the initials with a photo.
+          Each clinician card can use the upload controls below. The JSON stays available for changing names, roles and focus.
         </p>
+        <div className="photo-editor-list">
+          {draft.clinicians.map((clinician, index) => (
+            <ImageEditor
+              key={`${clinician.name}-${index}`}
+              label={clinician.name}
+              photo={clinician}
+              onChange={(photo) => updateClinicianPhoto(index, photo)}
+              onUpload={uploadImage}
+            />
+          ))}
+        </div>
         <label>
           Clinic name
           <input value={draft.clinicName} onChange={(event) => update("clinicName", event.target.value)} />
@@ -551,5 +627,170 @@ function ContentEditor() {
         </button>
       </div>
     </form>
+  );
+}
+
+function ImageEditor({
+  label = "Photo",
+  photo,
+  onChange,
+  onUpload,
+}: {
+  label?: string;
+  photo: PhotoContent;
+  onChange: (photo: PhotoContent) => void;
+  onUpload: (file: File) => Promise<string>;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+
+  function update<K extends keyof PhotoContent>(key: K, value: PhotoContent[K]) {
+    onChange({ ...photo, [key]: value });
+  }
+
+  async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setUploadError("");
+    try {
+      const url = await onUpload(file);
+      onChange({
+        ...photo,
+        imageSrc: url,
+        imageAlt: photo.imageAlt || file.name.replace(/\.[^.]+$/, ""),
+      });
+    } catch (error) {
+      setUploadError(error instanceof Error ? error.message : "Could not upload image");
+    } finally {
+      setUploading(false);
+      event.target.value = "";
+    }
+  }
+
+  return (
+    <div className="image-editor">
+      <div className="image-editor-preview">
+        {photo.imageSrc ? (
+          <img
+            src={photo.imageSrc}
+            alt={photo.imageAlt || label}
+            style={{
+              objectFit: photo.imageFit ?? "cover",
+              objectPosition: photo.imagePosition ?? "50% 50%",
+              filter: `brightness(${photo.imageBrightness ?? 100}%) contrast(${photo.imageContrast ?? 100}%) saturate(${photo.imageSaturation ?? 100}%)`,
+            }}
+          />
+        ) : (
+          <span>No photo</span>
+        )}
+      </div>
+      <div className="image-editor-controls">
+        <strong>{label}</strong>
+        <label className="upload-button">
+          {uploading ? "Uploading..." : "Upload replacement photo"}
+          <input
+            accept="image/png,image/jpeg,image/webp,image/gif"
+            disabled={uploading}
+            onChange={handleFileChange}
+            type="file"
+          />
+        </label>
+        {uploadError && <p className="admin-error">{uploadError}</p>}
+        <label>
+          Photo URL
+          <input
+            value={photo.imageSrc ?? ""}
+            onChange={(event) => update("imageSrc", event.target.value)}
+          />
+        </label>
+        <label>
+          Alt text
+          <input
+            value={photo.imageAlt ?? ""}
+            onChange={(event) => update("imageAlt", event.target.value)}
+          />
+        </label>
+        <div className="photo-control-grid">
+          <label>
+            Fit
+            <select
+              value={photo.imageFit ?? "cover"}
+              onChange={(event) =>
+                update("imageFit", event.target.value as PhotoContent["imageFit"])
+              }
+            >
+              <option value="cover">Cover</option>
+              <option value="contain">Contain</option>
+            </select>
+          </label>
+          <label>
+            Focus
+            <select
+              value={photo.imagePosition ?? "50% 50%"}
+              onChange={(event) => update("imagePosition", event.target.value)}
+            >
+              <option value="50% 50%">Center</option>
+              <option value="50% 0%">Top</option>
+              <option value="50% 100%">Bottom</option>
+              <option value="0% 50%">Left</option>
+              <option value="100% 50%">Right</option>
+              <option value="0% 0%">Top left</option>
+              <option value="100% 0%">Top right</option>
+              <option value="0% 100%">Bottom left</option>
+              <option value="100% 100%">Bottom right</option>
+            </select>
+          </label>
+          <label>
+            Brightness
+            <input
+              max="140"
+              min="60"
+              onChange={(event) => update("imageBrightness", Number(event.target.value))}
+              type="range"
+              value={photo.imageBrightness ?? 100}
+            />
+          </label>
+          <label>
+            Contrast
+            <input
+              max="140"
+              min="60"
+              onChange={(event) => update("imageContrast", Number(event.target.value))}
+              type="range"
+              value={photo.imageContrast ?? 100}
+            />
+          </label>
+          <label>
+            Saturation
+            <input
+              max="160"
+              min="0"
+              onChange={(event) => update("imageSaturation", Number(event.target.value))}
+              type="range"
+              value={photo.imageSaturation ?? 100}
+            />
+          </label>
+        </div>
+        <button
+          className="button secondary"
+          onClick={() =>
+            onChange({
+              ...photo,
+              imageSrc: "",
+              imageAlt: "",
+              imageFit: "cover",
+              imagePosition: "50% 50%",
+              imageBrightness: 100,
+              imageContrast: 100,
+              imageSaturation: 100,
+            })
+          }
+          type="button"
+        >
+          Remove photo
+        </button>
+      </div>
+    </div>
   );
 }

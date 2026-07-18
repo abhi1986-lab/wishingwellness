@@ -1,10 +1,18 @@
+export type PhotoContent = {
+  imageSrc?: string;
+  imageAlt?: string;
+  imageFit?: "cover" | "contain";
+  imagePosition?: string;
+  imageBrightness?: number;
+  imageContrast?: number;
+  imageSaturation?: number;
+};
+
 export type ServiceContent = {
   title: string;
   summary: string;
   tags: string[];
-  imageSrc?: string;
-  imageAlt?: string;
-};
+} & PhotoContent;
 
 export type ApproachContent = {
   step: string;
@@ -16,9 +24,7 @@ export type ClinicianContent = {
   name: string;
   role: string;
   focus: string;
-  imageSrc?: string;
-  imageAlt?: string;
-};
+} & PhotoContent;
 
 export type SiteContent = {
   brandName: string;
@@ -27,6 +33,11 @@ export type SiteContent = {
   heroText: string;
   heroImageSrc: string;
   heroImageAlt: string;
+  heroImageFit: "cover" | "contain";
+  heroImagePosition: string;
+  heroImageBrightness: number;
+  heroImageContrast: number;
+  heroImageSaturation: number;
   heroTrust: string[];
   aboutEyebrow: string;
   aboutTitle: string;
@@ -78,6 +89,11 @@ export const defaultSiteContent: SiteContent = {
     "Physiotherapy, chiropractic care, manual therapy and specialist rehabilitation guided by whole-body assessment, clear education and measurable progress.",
   heroImageSrc: "/images/clinic-care.png",
   heroImageAlt: "A physiotherapist guiding a patient through a mobility assessment",
+  heroImageFit: "cover",
+  heroImagePosition: "50% 50%",
+  heroImageBrightness: 100,
+  heroImageContrast: 100,
+  heroImageSaturation: 100,
   heroTrust: ["One Noida clinic", "Manual therapy", "Lead confirmation"],
   aboutEyebrow: "Why Wishing Wellness",
   aboutTitle: "Multidisciplinary assessment, one connected plan",
