@@ -76,6 +76,17 @@ const articles = [
   "What to expect during ACL rehabilitation",
 ];
 
+const contact = {
+  phoneDisplay: "096503 53668",
+  phoneHref: "tel:+919650353668",
+  whatsappHref: "https://wa.me/919650353668",
+  email: "hello@wishingwellness.example",
+  mapHref:
+    "https://www.google.com/maps/place/Wishing+Wellness+Physiotherapy+Clinic+%7C+Dr.+Amrinder+Kaur+-+Best+Physiotherapist+%7C+Sector133,+Noida/@28.5080734,77.3679616,17z",
+  address:
+    "G 70, KP I, Sector 133, Noida, Shahpur Govardhanpur Khadar, Uttar Pradesh 201304",
+};
+
 function referenceNumber(prefix: string) {
   return `${prefix}-${Math.floor(100000 + Math.random() * 900000)}`;
 }
@@ -111,7 +122,7 @@ export default function Home() {
           <a href="#articles">Blogs</a>
         </nav>
         <div className="header-actions">
-          <a className="phone-link" href="tel:+911204000000">
+          <a className="phone-link" href={contact.phoneHref}>
             Call Noida
           </a>
           <a className="button primary small" href="#appointment">
@@ -266,21 +277,24 @@ export default function Home() {
         <div className="location-card">
           <div>
             <h3>Noida Clinic</h3>
-            <p>
-              Complete address, map link, accessibility notes and parking
-              details can be connected to the clinic record.
-            </p>
+            <p>{contact.address}</p>
             <dl>
               <div>
                 <dt>Phone</dt>
                 <dd>
-                  <a href="tel:+911204000000">+91 120 400 0000</a>
+                  <a href={contact.phoneHref}>{contact.phoneDisplay}</a>
                 </dd>
               </div>
               <div>
                 <dt>WhatsApp</dt>
                 <dd>
-                  <a href="https://wa.me/911204000000">Message the clinic</a>
+                  <a href={contact.whatsappHref}>Message the clinic</a>
+                </dd>
+              </div>
+              <div>
+                <dt>Email</dt>
+                <dd>
+                  <a href={`mailto:${contact.email}`}>{contact.email}</a>
                 </dd>
               </div>
               <div>
@@ -288,10 +302,17 @@ export default function Home() {
                 <dd>Mon-Sat, 9:00 AM-7:00 PM</dd>
               </div>
             </dl>
+            <a className="button secondary map-link" href={contact.mapHref}>
+              Open in Google Maps
+            </a>
           </div>
-          <div className="map-panel" aria-label="Noida clinic map placeholder">
+          <a
+            className="map-panel"
+            href={contact.mapHref}
+            aria-label="Open Wishing Wellness Noida in Google Maps"
+          >
             <span>Noida</span>
-          </div>
+          </a>
         </div>
       </section>
 
@@ -438,6 +459,7 @@ export default function Home() {
         <div>
           <strong>Wishing Wellness</strong>
           <p>Integrated physiotherapy and rehabilitation care in Noida.</p>
+          <p>{contact.address}</p>
         </div>
         <div>
           <strong>Treatments</strong>
@@ -448,8 +470,10 @@ export default function Home() {
         <div>
           <strong>Location</strong>
           <a href="#location">Noida Clinic</a>
-          <a href="tel:+911204000000">Call Noida</a>
-          <a href="https://wa.me/911204000000">WhatsApp</a>
+          <a href={contact.phoneHref}>Call {contact.phoneDisplay}</a>
+          <a href={contact.whatsappHref}>WhatsApp</a>
+          <a href={`mailto:${contact.email}`}>{contact.email}</a>
+          <a href={contact.mapHref}>Google Maps</a>
         </div>
         <div>
           <strong>Compliance</strong>
