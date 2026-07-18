@@ -262,6 +262,30 @@ function parseJson<T>(value: string, label: string): T {
   }
 }
 
+function youtubeVideoId(value: string) {
+  if (!value) return "";
+  try {
+    const url = new URL(value);
+    if (url.hostname.includes("youtu.be")) {
+      return url.pathname.slice(1);
+    }
+    if (url.hostname.includes("youtube.com")) {
+      if (url.pathname.startsWith("/embed/")) {
+        return url.pathname.split("/embed/")[1]?.split("/")[0] ?? "";
+      }
+      return url.searchParams.get("v") ?? "";
+    }
+  } catch {
+    return "";
+  }
+  return "";
+}
+
+function youtubeThumbnailUrl(value: string) {
+  const videoId = youtubeVideoId(value);
+  return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : "";
+}
+
 function ContentEditor() {
   const [draft, setDraft] = useState<SiteContent>(defaultSiteContent);
   const [heroTrustText, setHeroTrustText] = useState(lines(defaultSiteContent.heroTrust));
@@ -345,6 +369,19 @@ function ContentEditor() {
       setTestimonialsJson(pretty(testimonials));
       return { ...current, testimonials };
     });
+  }
+
+  function updateTestimonialsJson(value: string) {
+    setTestimonialsJson(value);
+    try {
+      const testimonials = parseJson<SiteContent["testimonials"]>(
+        value,
+        "Testimonials",
+      );
+      setDraft((current) => ({ ...current, testimonials }));
+    } catch {
+      // Keep the editor permissive while the user is mid-editing JSON.
+    }
   }
 
   async function loadContent() {
@@ -593,10 +630,10 @@ function ContentEditor() {
         </label>
         <label>
           Testimonial video cards
-          <textarea value={testimonialsJson} onChange={(event) => setTestimonialsJson(event.target.value)} rows={14} />
+          <textarea value={testimonialsJson} onChange={(event) => updateTestimonialsJson(event.target.value)} rows={14} />
         </label>
         <p className="editor-hint">
-          Add YouTube links in videoUrl. Use the thumbnail controls below to match the video-card style.
+          Add YouTube links in videoUrl. The thumbnail below comes from YouTube automatically; upload only if you want a custom override.
         </p>
         <div className="photo-editor-list">
           {draft.testimonials.map((testimonial, index) => (
@@ -604,6 +641,10 @@ function ContentEditor() {
               key={`${testimonial.title}-${index}`}
               label={testimonial.title}
               photo={testimonial}
+              fallbackImageSrc={youtubeThumbnailUrl(testimonial.videoUrl)}
+              fallbackLabel="YouTube thumbnail"
+              photoUrlLabel="Custom thumbnail URL"
+              uploadLabel="Upload custom thumbnail"
               onChange={(photo) => updateTestimonialPhoto(index, photo)}
               onUpload={uploadImage}
             />
@@ -693,16 +734,25 @@ function ContentEditor() {
 function ImageEditor({
   label = "Photo",
   photo,
+  fallbackImageSrc = "",
+  fallbackLabel = "",
+  photoUrlLabel = "Photo URL",
+  uploadLabel = "Upload replacement photo",
   onChange,
   onUpload,
 }: {
   label?: string;
   photo: PhotoContent;
+  fallbackImageSrc?: string;
+  fallbackLabel?: string;
+  photoUrlLabel?: string;
+  uploadLabel?: string;
   onChange: (photo: PhotoContent) => void;
   onUpload: (file: File) => Promise<string>;
 }) {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  const previewSrc = photo.imageSrc || fallbackImageSrc;
 
   function update<K extends keyof PhotoContent>(key: K, value: PhotoContent[K]) {
     onChange({ ...photo, [key]: value });
@@ -731,9 +781,9 @@ function ImageEditor({
   return (
     <div className="image-editor">
       <div className="image-editor-preview">
-        {photo.imageSrc ? (
+        {previewSrc ? (
           <img
-            src={photo.imageSrc}
+            src={previewSrc}
             alt={photo.imageAlt || label}
             style={{
               objectFit: photo.imageFit ?? "cover",
@@ -744,11 +794,14 @@ function ImageEditor({
         ) : (
           <span>No photo</span>
         )}
+        {!photo.imageSrc && fallbackImageSrc && (
+          <em className="image-editor-badge">{fallbackLabel}</em>
+        )}
       </div>
       <div className="image-editor-controls">
         <strong>{label}</strong>
         <label className="upload-button">
-          {uploading ? "Uploading..." : "Upload replacement photo"}
+          {uploading ? "Uploading..." : uploadLabel}
           <input
             accept="image/png,image/jpeg,image/webp,image/gif"
             disabled={uploading}
@@ -758,7 +811,7 @@ function ImageEditor({
         </label>
         {uploadError && <p className="admin-error">{uploadError}</p>}
         <label>
-          Photo URL
+          {photoUrlLabel}
           <input
             value={photo.imageSrc ?? ""}
             onChange={(event) => update("imageSrc", event.target.value)}
@@ -848,7 +901,7 @@ function ImageEditor({
           }
           type="button"
         >
-          Remove photo
+          {fallbackImageSrc ? "Remove custom thumbnail" : "Remove photo"}
         </button>
       </div>
     </div>

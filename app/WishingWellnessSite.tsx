@@ -40,6 +40,12 @@ function youtubeEmbedUrl(value: string) {
   return "";
 }
 
+function youtubeThumbnailUrl(value: string) {
+  const embedUrl = youtubeEmbedUrl(value);
+  const videoId = embedUrl.split("/embed/")[1]?.split("?")[0];
+  return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : "";
+}
+
 export function WishingWellnessSite({
   content: initialContent,
 }: {
@@ -283,6 +289,8 @@ export function WishingWellnessSite({
         <div className="testimonial-video-grid">
           {content.testimonials.map((testimonial, index) => {
             const embedUrl = youtubeEmbedUrl(testimonial.videoUrl);
+            const thumbnailSrc =
+              testimonial.imageSrc || youtubeThumbnailUrl(testimonial.videoUrl);
             return (
               <article className="testimonial-video-card" key={`${testimonial.title}-${index}`}>
                 {embedUrl ? (
@@ -298,9 +306,9 @@ export function WishingWellnessSite({
                     href={testimonial.videoUrl || "#appointment"}
                     aria-label={`Watch ${testimonial.title}`}
                   >
-                    {testimonial.imageSrc ? (
+                    {thumbnailSrc ? (
                       <img
-                        src={testimonial.imageSrc}
+                        src={thumbnailSrc}
                         alt={testimonial.imageAlt || testimonial.title}
                         style={photoStyle(testimonial)}
                       />

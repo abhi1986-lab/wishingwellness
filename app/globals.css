@@ -1053,6 +1053,7 @@ textarea {
 }
 
 .image-editor-preview {
+  position: relative;
   display: grid;
   overflow: hidden;
   min-height: 160px;
@@ -1062,6 +1063,19 @@ textarea {
   background: white;
   color: var(--muted);
   font-weight: 800;
+}
+
+.image-editor-badge {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: rgba(17, 27, 22, 0.72);
+  color: white;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 900;
 }
 
 .image-editor-preview img {
