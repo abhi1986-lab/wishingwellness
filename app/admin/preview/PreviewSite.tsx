@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { WishingWellnessSite } from "../../page";
+import { WishingWellnessSite } from "../../WishingWellnessSite";
 import { defaultSiteContent, mergeSiteContent, SiteContent } from "../../site-content";
 
 export function PreviewSite() {
@@ -34,7 +34,7 @@ export function PreviewSite() {
           Back to admin
         </a>
       </div>
-      <WishingWellnessSite previewContent={content} />
+      <WishingWellnessSite content={content} />
     </>
   );
 }

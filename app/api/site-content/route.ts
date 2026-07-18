@@ -1,38 +1,18 @@
-import { eq } from "drizzle-orm";
 import { getChatGPTUser } from "../../chatgpt-auth";
 import { getDb } from "../../../db";
 import { siteContent } from "../../../db/schema";
-import { defaultSiteContent, mergeSiteContent } from "../../site-content";
-
-const CONTENT_KEY = "homepage";
-
-function readContent(value: string) {
-  try {
-    return mergeSiteContent(JSON.parse(value));
-  } catch {
-    return defaultSiteContent;
-  }
-}
-
-async function loadContent() {
-  const [row] = await getDb()
-    .select()
-    .from(siteContent)
-    .where(eq(siteContent.key, CONTENT_KEY))
-    .limit(1);
-
-  return row ? readContent(row.value) : defaultSiteContent;
-}
+import { mergeSiteContent } from "../../site-content";
+import {
+  CONTENT_KEY,
+  loadSiteContentWithFallback,
+} from "../../site-content-store";
 
 export async function GET() {
   try {
-    const content = await loadContent();
+    const content = await loadSiteContentWithFallback();
     return Response.json({ content });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unexpected error";
-    if (message.includes("no such table")) {
-      return Response.json({ content: defaultSiteContent });
-    }
     return Response.json({ error: message }, { status: 500 });
   }
 }
