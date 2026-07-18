@@ -413,7 +413,7 @@ h3 {
   display: grid;
   grid-template-columns: minmax(280px, 480px) minmax(320px, 640px);
   gap: 48px;
-  align-items: start;
+  align-items: stretch;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -441,13 +441,16 @@ h3 {
 
 .clinician-list {
   display: grid;
-  align-content: start;
+  align-content: stretch;
+  grid-auto-rows: minmax(0, 1fr);
   gap: 16px;
+  height: 100%;
 }
 
 .clinician-list article {
   display: grid;
   grid-template-columns: 64px 1fr;
+  align-items: center;
   gap: 18px;
   padding: 20px;
 }
