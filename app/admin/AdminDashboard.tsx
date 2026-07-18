@@ -1,6 +1,11 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import {
+  defaultSiteContent,
+  mergeSiteContent,
+  SiteContent,
+} from "../site-content";
 
 type Lead = {
   id: number;
@@ -36,6 +41,7 @@ export function AdminDashboard({ adminName }: { adminName: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [savingId, setSavingId] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState<"leads" | "content">("leads");
 
   const counts = useMemo(() => {
     return leads.reduce(
@@ -115,96 +121,421 @@ export function AdminDashboard({ adminName }: { adminName: string }) {
         </div>
       </header>
 
-      <section className="admin-stats" aria-label="Lead summary">
-        <article>
-          <span>Total leads</span>
-          <strong>{counts.total}</strong>
-        </article>
-        <article>
-          <span>New</span>
-          <strong>{counts.new}</strong>
-        </article>
-        <article>
-          <span>Appointments</span>
-          <strong>{counts.appointments}</strong>
-        </article>
-        <article>
-          <span>Callbacks</span>
-          <strong>{counts.callbacks}</strong>
-        </article>
-      </section>
+      <nav className="admin-tabs" aria-label="Admin sections">
+        <button
+          className={activeTab === "leads" ? "active" : ""}
+          onClick={() => setActiveTab("leads")}
+          type="button"
+        >
+          Leads
+        </button>
+        <button
+          className={activeTab === "content" ? "active" : ""}
+          onClick={() => setActiveTab("content")}
+          type="button"
+        >
+          Site content
+        </button>
+      </nav>
 
-      {error && <p className="admin-error">{error}</p>}
-      {loading && <p className="admin-empty">Loading leads...</p>}
-      {!loading && leads.length === 0 && (
-        <p className="admin-empty">No leads yet. New public form submissions will appear here.</p>
+      {activeTab === "leads" ? (
+        <>
+          <section className="admin-stats" aria-label="Lead summary">
+            <article>
+              <span>Total leads</span>
+              <strong>{counts.total}</strong>
+            </article>
+            <article>
+              <span>New</span>
+              <strong>{counts.new}</strong>
+            </article>
+            <article>
+              <span>Appointments</span>
+              <strong>{counts.appointments}</strong>
+            </article>
+            <article>
+              <span>Callbacks</span>
+              <strong>{counts.callbacks}</strong>
+            </article>
+          </section>
+
+          {error && <p className="admin-error">{error}</p>}
+          {loading && <p className="admin-empty">Loading leads...</p>}
+          {!loading && leads.length === 0 && (
+            <p className="admin-empty">No leads yet. New public form submissions will appear here.</p>
+          )}
+
+          <section className="lead-table" aria-label="Lead list">
+            {leads.map((lead) => (
+              <article className="lead-row" key={lead.id}>
+                <div className="lead-main">
+                  <div>
+                    <span className={`lead-type ${lead.leadType}`}>
+                      {lead.leadType}
+                    </span>
+                    <h2>{lead.name}</h2>
+                    <p>{lead.serviceOrCondition}</p>
+                  </div>
+                  <dl>
+                    <div>
+                      <dt>Reference</dt>
+                      <dd>{lead.reference}</dd>
+                    </div>
+                    <div>
+                      <dt>Phone</dt>
+                      <dd>
+                        <a href={`tel:${lead.phone}`}>{lead.phone}</a>
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Email</dt>
+                      <dd>{lead.email || "Not provided"}</dd>
+                    </div>
+                    <div>
+                      <dt>Location</dt>
+                      <dd>{lead.location}</dd>
+                    </div>
+                    <div>
+                      <dt>Preferred</dt>
+                      <dd>
+                        {[lead.preferredDate, lead.preferredTime]
+                          .filter(Boolean)
+                          .join(" ") || "Callback"}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Created</dt>
+                      <dd>{new Date(lead.createdAt).toLocaleString()}</dd>
+                    </div>
+                  </dl>
+                  {lead.message && <p className="lead-message">{lead.message}</p>}
+                </div>
+                <form className="lead-update" onSubmit={(event) => updateLead(event, lead.id)}>
+                  <label>
+                    Status
+                    <select name="status" defaultValue={lead.status}>
+                      {statuses.map((status) => (
+                        <option key={status}>{status}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    Notes
+                    <textarea name="notes" defaultValue={lead.notes} rows={4} />
+                  </label>
+                  <button className="button primary" disabled={savingId === lead.id} type="submit">
+                    {savingId === lead.id ? "Saving..." : "Save"}
+                  </button>
+                </form>
+              </article>
+            ))}
+          </section>
+        </>
+      ) : (
+        <ContentEditor />
       )}
-
-      <section className="lead-table" aria-label="Lead list">
-        {leads.map((lead) => (
-          <article className="lead-row" key={lead.id}>
-            <div className="lead-main">
-              <div>
-                <span className={`lead-type ${lead.leadType}`}>
-                  {lead.leadType}
-                </span>
-                <h2>{lead.name}</h2>
-                <p>{lead.serviceOrCondition}</p>
-              </div>
-              <dl>
-                <div>
-                  <dt>Reference</dt>
-                  <dd>{lead.reference}</dd>
-                </div>
-                <div>
-                  <dt>Phone</dt>
-                  <dd>
-                    <a href={`tel:${lead.phone}`}>{lead.phone}</a>
-                  </dd>
-                </div>
-                <div>
-                  <dt>Email</dt>
-                  <dd>{lead.email || "Not provided"}</dd>
-                </div>
-                <div>
-                  <dt>Location</dt>
-                  <dd>{lead.location}</dd>
-                </div>
-                <div>
-                  <dt>Preferred</dt>
-                  <dd>
-                    {[lead.preferredDate, lead.preferredTime]
-                      .filter(Boolean)
-                      .join(" ") || "Callback"}
-                  </dd>
-                </div>
-                <div>
-                  <dt>Created</dt>
-                  <dd>{new Date(lead.createdAt).toLocaleString()}</dd>
-                </div>
-              </dl>
-              {lead.message && <p className="lead-message">{lead.message}</p>}
-            </div>
-            <form className="lead-update" onSubmit={(event) => updateLead(event, lead.id)}>
-              <label>
-                Status
-                <select name="status" defaultValue={lead.status}>
-                  {statuses.map((status) => (
-                    <option key={status}>{status}</option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                Notes
-                <textarea name="notes" defaultValue={lead.notes} rows={4} />
-              </label>
-              <button className="button primary" disabled={savingId === lead.id} type="submit">
-                {savingId === lead.id ? "Saving..." : "Save"}
-              </button>
-            </form>
-          </article>
-        ))}
-      </section>
     </main>
+  );
+}
+
+function lines(value: string[]) {
+  return value.join("\n");
+}
+
+function parseLines(value: string) {
+  return value
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
+function pretty(value: unknown) {
+  return JSON.stringify(value, null, 2);
+}
+
+function parseJson<T>(value: string, label: string): T {
+  try {
+    return JSON.parse(value) as T;
+  } catch {
+    throw new Error(`${label} must be valid JSON.`);
+  }
+}
+
+function ContentEditor() {
+  const [draft, setDraft] = useState<SiteContent>(defaultSiteContent);
+  const [heroTrustText, setHeroTrustText] = useState(lines(defaultSiteContent.heroTrust));
+  const [bodyAreasText, setBodyAreasText] = useState(lines(defaultSiteContent.bodyAreas));
+  const [articlesText, setArticlesText] = useState(lines(defaultSiteContent.articles));
+  const [approachJson, setApproachJson] = useState(pretty(defaultSiteContent.approach));
+  const [servicesJson, setServicesJson] = useState(pretty(defaultSiteContent.services));
+  const [cliniciansJson, setCliniciansJson] = useState(pretty(defaultSiteContent.clinicians));
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  function syncContent(content: SiteContent) {
+    setDraft(content);
+    setHeroTrustText(lines(content.heroTrust));
+    setBodyAreasText(lines(content.bodyAreas));
+    setArticlesText(lines(content.articles));
+    setApproachJson(pretty(content.approach));
+    setServicesJson(pretty(content.services));
+    setCliniciansJson(pretty(content.clinicians));
+  }
+
+  function update<K extends keyof SiteContent>(key: K, value: SiteContent[K]) {
+    setDraft((current) => ({ ...current, [key]: value }));
+  }
+
+  function updateContact<K extends keyof SiteContent["contact"]>(
+    key: K,
+    value: SiteContent["contact"][K],
+  ) {
+    setDraft((current) => ({
+      ...current,
+      contact: { ...current.contact, [key]: value },
+    }));
+  }
+
+  async function loadContent() {
+    setLoading(true);
+    setError("");
+    const response = await fetch("/api/site-content", { cache: "no-store" });
+    const data = await response.json();
+    if (!response.ok) {
+      setError(data.error ?? "Could not load site content");
+      setLoading(false);
+      return;
+    }
+    syncContent(mergeSiteContent(data.content));
+    setLoading(false);
+  }
+
+  async function saveContent(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSaving(true);
+    setError("");
+    setMessage("");
+
+    let next: SiteContent;
+    try {
+      next = mergeSiteContent({
+        ...draft,
+        heroTrust: parseLines(heroTrustText),
+        bodyAreas: parseLines(bodyAreasText),
+        articles: parseLines(articlesText),
+        approach: parseJson(approachJson, "Approach steps"),
+        services: parseJson(servicesJson, "Services"),
+        clinicians: parseJson(cliniciansJson, "Clinicians"),
+      });
+    } catch (parseError) {
+      setError(parseError instanceof Error ? parseError.message : "Invalid content");
+      setSaving(false);
+      return;
+    }
+
+    const response = await fetch("/api/site-content", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content: next }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      setError(data.error ?? "Could not save site content");
+      setSaving(false);
+      return;
+    }
+    syncContent(mergeSiteContent(data.content));
+    setMessage("Site content saved. Refresh the public site to see the latest version.");
+    setSaving(false);
+  }
+
+  useEffect(() => {
+    void loadContent();
+  }, []);
+
+  if (loading) {
+    return <p className="admin-empty">Loading site content...</p>;
+  }
+
+  return (
+    <form className="content-editor" onSubmit={saveContent}>
+      {error && <p className="admin-error">{error}</p>}
+      {message && <p className="success">{message}</p>}
+
+      <section>
+        <h2>Brand and hero</h2>
+        <label>
+          Brand name
+          <input value={draft.brandName} onChange={(event) => update("brandName", event.target.value)} />
+        </label>
+        <label>
+          Hero eyebrow
+          <input value={draft.heroEyebrow} onChange={(event) => update("heroEyebrow", event.target.value)} />
+        </label>
+        <label>
+          Hero title
+          <textarea value={draft.heroTitle} onChange={(event) => update("heroTitle", event.target.value)} rows={2} />
+        </label>
+        <label>
+          Hero text
+          <textarea value={draft.heroText} onChange={(event) => update("heroText", event.target.value)} rows={4} />
+        </label>
+        <label>
+          Hero trust badges
+          <textarea value={heroTrustText} onChange={(event) => setHeroTrustText(event.target.value)} rows={4} />
+        </label>
+      </section>
+
+      <section>
+        <h2>About and approach</h2>
+        <label>
+          About eyebrow
+          <input value={draft.aboutEyebrow} onChange={(event) => update("aboutEyebrow", event.target.value)} />
+        </label>
+        <label>
+          About title
+          <textarea value={draft.aboutTitle} onChange={(event) => update("aboutTitle", event.target.value)} rows={2} />
+        </label>
+        <label>
+          About text
+          <textarea value={draft.aboutText} onChange={(event) => update("aboutText", event.target.value)} rows={4} />
+        </label>
+        <label>
+          Approach cards
+          <textarea value={approachJson} onChange={(event) => setApproachJson(event.target.value)} rows={12} />
+        </label>
+      </section>
+
+      <section>
+        <h2>Treatments and conditions</h2>
+        <label>
+          Treatments eyebrow
+          <input value={draft.treatmentsEyebrow} onChange={(event) => update("treatmentsEyebrow", event.target.value)} />
+        </label>
+        <label>
+          Treatments title
+          <textarea value={draft.treatmentsTitle} onChange={(event) => update("treatmentsTitle", event.target.value)} rows={2} />
+        </label>
+        <label>
+          Treatments text
+          <textarea value={draft.treatmentsText} onChange={(event) => update("treatmentsText", event.target.value)} rows={3} />
+        </label>
+        <label>
+          Service cards
+          <textarea value={servicesJson} onChange={(event) => setServicesJson(event.target.value)} rows={16} />
+        </label>
+        <label>
+          Conditions eyebrow
+          <input value={draft.conditionsEyebrow} onChange={(event) => update("conditionsEyebrow", event.target.value)} />
+        </label>
+        <label>
+          Conditions title
+          <textarea value={draft.conditionsTitle} onChange={(event) => update("conditionsTitle", event.target.value)} rows={2} />
+        </label>
+        <label>
+          Conditions text
+          <textarea value={draft.conditionsText} onChange={(event) => update("conditionsText", event.target.value)} rows={3} />
+        </label>
+        <label>
+          Body areas
+          <textarea value={bodyAreasText} onChange={(event) => setBodyAreasText(event.target.value)} rows={8} />
+        </label>
+      </section>
+
+      <section>
+        <h2>Team, location and contact</h2>
+        <label>
+          Team eyebrow
+          <input value={draft.teamEyebrow} onChange={(event) => update("teamEyebrow", event.target.value)} />
+        </label>
+        <label>
+          Team title
+          <textarea value={draft.teamTitle} onChange={(event) => update("teamTitle", event.target.value)} rows={2} />
+        </label>
+        <label>
+          Team text
+          <textarea value={draft.teamText} onChange={(event) => update("teamText", event.target.value)} rows={4} />
+        </label>
+        <label>
+          Clinician cards
+          <textarea value={cliniciansJson} onChange={(event) => setCliniciansJson(event.target.value)} rows={12} />
+        </label>
+        <label>
+          Clinic name
+          <input value={draft.clinicName} onChange={(event) => update("clinicName", event.target.value)} />
+        </label>
+        <label>
+          Clinic hours
+          <input value={draft.clinicHours} onChange={(event) => update("clinicHours", event.target.value)} />
+        </label>
+        <label>
+          Phone display
+          <input value={draft.contact.phoneDisplay} onChange={(event) => updateContact("phoneDisplay", event.target.value)} />
+        </label>
+        <label>
+          Phone link
+          <input value={draft.contact.phoneHref} onChange={(event) => updateContact("phoneHref", event.target.value)} />
+        </label>
+        <label>
+          WhatsApp link
+          <input value={draft.contact.whatsappHref} onChange={(event) => updateContact("whatsappHref", event.target.value)} />
+        </label>
+        <label>
+          Email
+          <input value={draft.contact.email} onChange={(event) => updateContact("email", event.target.value)} />
+        </label>
+        <label>
+          Address
+          <textarea value={draft.contact.address} onChange={(event) => updateContact("address", event.target.value)} rows={3} />
+        </label>
+        <label>
+          Google Maps link
+          <textarea value={draft.contact.mapHref} onChange={(event) => updateContact("mapHref", event.target.value)} rows={3} />
+        </label>
+      </section>
+
+      <section>
+        <h2>Forms, articles and footer</h2>
+        <label>
+          Appointment title
+          <input value={draft.appointmentTitle} onChange={(event) => update("appointmentTitle", event.target.value)} />
+        </label>
+        <label>
+          Appointment text
+          <textarea value={draft.appointmentText} onChange={(event) => update("appointmentText", event.target.value)} rows={3} />
+        </label>
+        <label>
+          Callback title
+          <input value={draft.callbackTitle} onChange={(event) => update("callbackTitle", event.target.value)} />
+        </label>
+        <label>
+          Callback text
+          <textarea value={draft.callbackText} onChange={(event) => update("callbackText", event.target.value)} rows={3} />
+        </label>
+        <label>
+          Articles title
+          <input value={draft.articlesTitle} onChange={(event) => update("articlesTitle", event.target.value)} />
+        </label>
+        <label>
+          Articles
+          <textarea value={articlesText} onChange={(event) => setArticlesText(event.target.value)} rows={6} />
+        </label>
+        <label>
+          Footer text
+          <textarea value={draft.footerText} onChange={(event) => update("footerText", event.target.value)} rows={3} />
+        </label>
+      </section>
+
+      <div className="content-editor-actions">
+        <button className="button secondary" onClick={loadContent} type="button">
+          Reload
+        </button>
+        <button className="button primary" disabled={saving} type="submit">
+          {saving ? "Saving..." : "Save site content"}
+        </button>
+      </div>
+    </form>
   );
 }

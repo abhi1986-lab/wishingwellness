@@ -692,6 +692,30 @@ textarea {
   justify-content: flex-end;
 }
 
+.admin-tabs {
+  display: flex;
+  max-width: 1240px;
+  margin: 0 auto 24px;
+  gap: 10px;
+}
+
+.admin-tabs button {
+  min-height: 42px;
+  padding: 0 18px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: white;
+  color: var(--green-dark);
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.admin-tabs button.active {
+  border-color: var(--green-dark);
+  background: var(--green-dark);
+  color: white;
+}
+
 .admin-stats,
 .lead-table {
   display: grid;
@@ -794,6 +818,61 @@ textarea {
   font-weight: 900;
 }
 
+.content-editor {
+  display: grid;
+  max-width: 1240px;
+  margin: 0 auto;
+  gap: 18px;
+}
+
+.content-editor section {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+}
+
+.content-editor h2 {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 24px;
+}
+
+.content-editor label {
+  display: grid;
+  gap: 8px;
+  color: var(--green-dark);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.content-editor textarea {
+  min-height: 92px;
+}
+
+.content-editor label:has(textarea[rows="12"]),
+.content-editor label:has(textarea[rows="16"]),
+.content-editor label:has(textarea[rows="8"]),
+.content-editor label:has(textarea[rows="6"]) {
+  grid-column: 1 / -1;
+}
+
+.content-editor-actions {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(247, 248, 243, 0.94);
+  backdrop-filter: blur(12px);
+}
+
 @media (max-width: 980px) {
   .desktop-nav,
   .phone-link {
@@ -842,6 +921,10 @@ textarea {
 
   .admin-stats {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .content-editor section {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -907,6 +990,11 @@ textarea {
 
   .admin-shell {
     padding: 18px;
+  }
+
+  .content-editor-actions,
+  .admin-tabs {
+    flex-direction: column;
   }
 
   .service-card {
