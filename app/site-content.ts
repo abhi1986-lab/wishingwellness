@@ -2,6 +2,8 @@ export type ServiceContent = {
   title: string;
   summary: string;
   tags: string[];
+  imageSrc?: string;
+  imageAlt?: string;
 };
 
 export type ApproachContent = {
@@ -14,6 +16,8 @@ export type ClinicianContent = {
   name: string;
   role: string;
   focus: string;
+  imageSrc?: string;
+  imageAlt?: string;
 };
 
 export type SiteContent = {
@@ -21,6 +25,8 @@ export type SiteContent = {
   heroEyebrow: string;
   heroTitle: string;
   heroText: string;
+  heroImageSrc: string;
+  heroImageAlt: string;
   heroTrust: string[];
   aboutEyebrow: string;
   aboutTitle: string;
@@ -70,6 +76,8 @@ export const defaultSiteContent: SiteContent = {
   heroTitle: "Move better. Live without persistent pain.",
   heroText:
     "Physiotherapy, chiropractic care, manual therapy and specialist rehabilitation guided by whole-body assessment, clear education and measurable progress.",
+  heroImageSrc: "/images/clinic-care.png",
+  heroImageAlt: "A physiotherapist guiding a patient through a mobility assessment",
   heroTrust: ["One Noida clinic", "Manual therapy", "Lead confirmation"],
   aboutEyebrow: "Why Wishing Wellness",
   aboutTitle: "Multidisciplinary assessment, one connected plan",

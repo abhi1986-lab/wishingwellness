@@ -383,6 +383,14 @@ function ContentEditor() {
           <textarea value={draft.heroText} onChange={(event) => update("heroText", event.target.value)} rows={4} />
         </label>
         <label>
+          Hero photo URL or path
+          <input value={draft.heroImageSrc} onChange={(event) => update("heroImageSrc", event.target.value)} />
+        </label>
+        <label>
+          Hero photo alt text
+          <input value={draft.heroImageAlt} onChange={(event) => update("heroImageAlt", event.target.value)} />
+        </label>
+        <label>
           Hero trust badges
           <textarea value={heroTrustText} onChange={(event) => setHeroTrustText(event.target.value)} rows={4} />
         </label>
@@ -426,6 +434,9 @@ function ContentEditor() {
           Service cards
           <textarea value={servicesJson} onChange={(event) => setServicesJson(event.target.value)} rows={16} />
         </label>
+        <p className="editor-hint">
+          Optional for each service: add imageSrc and imageAlt to replace the card visual with a photo.
+        </p>
         <label>
           Conditions eyebrow
           <input value={draft.conditionsEyebrow} onChange={(event) => update("conditionsEyebrow", event.target.value)} />
@@ -462,6 +473,9 @@ function ContentEditor() {
           Clinician cards
           <textarea value={cliniciansJson} onChange={(event) => setCliniciansJson(event.target.value)} rows={12} />
         </label>
+        <p className="editor-hint">
+          Optional for each clinician: add imageSrc and imageAlt to replace the initials with a photo.
+        </p>
         <label>
           Clinic name
           <input value={draft.clinicName} onChange={(event) => update("clinicName", event.target.value)} />

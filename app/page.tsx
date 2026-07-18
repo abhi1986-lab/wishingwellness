@@ -135,8 +135,8 @@ export default function Home() {
         </div>
         <div className="hero-media" aria-label="Physiotherapy assessment">
           <img
-            src="/images/clinic-care.png"
-            alt="A physiotherapist guiding a patient through a mobility assessment"
+            src={content.heroImageSrc}
+            alt={content.heroImageAlt}
           />
         </div>
       </section>
@@ -168,7 +168,14 @@ export default function Home() {
           {content.services.map((service) => (
             <article className="service-card" key={service.title}>
               <div className="card-visual" aria-hidden="true">
-                {service.title.slice(0, 2)}
+                {service.imageSrc ? (
+                  <img
+                    src={service.imageSrc}
+                    alt={service.imageAlt || `${service.title} treatment`}
+                  />
+                ) : (
+                  service.title.slice(0, 2)
+                )}
               </div>
               <h3>{service.title}</h3>
               <p>{service.summary}</p>
@@ -209,8 +216,15 @@ export default function Home() {
         <div className="clinician-list">
           {content.clinicians.map((clinician) => (
             <article key={clinician.name}>
-              <div className="avatar" aria-hidden="true">
-                {clinician.name.charAt(0)}
+              <div className="avatar">
+                {clinician.imageSrc ? (
+                  <img
+                    src={clinician.imageSrc}
+                    alt={clinician.imageAlt || clinician.name}
+                  />
+                ) : (
+                  <span aria-hidden="true">{clinician.name.charAt(0)}</span>
+                )}
               </div>
               <div>
                 <h3>{clinician.name}</h3>

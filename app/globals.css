@@ -353,6 +353,7 @@ h3 {
 .card-visual {
   display: flex;
   align-items: end;
+  overflow: hidden;
   height: 78px;
   margin-bottom: 18px;
   padding: 14px;
@@ -362,6 +363,13 @@ h3 {
     linear-gradient(135deg, rgba(25, 69, 51, 0.92), rgba(66, 108, 137, 0.9)),
     var(--green);
   font-weight: 900;
+}
+
+.card-visual img {
+  width: calc(100% + 28px);
+  height: calc(100% + 28px);
+  margin: -14px;
+  object-fit: cover;
 }
 
 .tag-row {
@@ -433,6 +441,7 @@ h3 {
 }
 
 .avatar {
+  overflow: hidden;
   display: grid;
   width: 64px;
   height: 64px;
@@ -441,6 +450,12 @@ h3 {
   background: var(--surface-soft);
   color: var(--green);
   font-weight: 900;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .location-card {
@@ -839,6 +854,16 @@ textarea {
   grid-column: 1 / -1;
   margin: 0;
   font-size: 24px;
+}
+
+.editor-hint {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 12px;
+  border-radius: 6px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-weight: 700;
 }
 
 .content-editor label {
