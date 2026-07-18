@@ -346,7 +346,7 @@ h3 {
 }
 
 .service-card {
-  min-height: 244px;
+  min-height: 330px;
   padding: 20px;
 }
 
@@ -354,7 +354,7 @@ h3 {
   display: flex;
   align-items: end;
   overflow: hidden;
-  height: 78px;
+  height: 164px;
   margin-bottom: 18px;
   padding: 14px;
   border-radius: 6px;
@@ -1293,7 +1293,11 @@ textarea {
   }
 
   .service-card {
-    min-height: 210px;
+    min-height: 300px;
+  }
+
+  .card-visual {
+    height: 150px;
   }
 
   .floating-book-tab {
