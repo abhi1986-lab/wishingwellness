@@ -20,6 +20,26 @@ function referenceNumber(prefix: string) {
   return `${prefix}-${Math.floor(100000 + Math.random() * 900000)}`;
 }
 
+function youtubeEmbedUrl(value: string) {
+  if (!value) return "";
+  try {
+    const url = new URL(value);
+    if (url.hostname.includes("youtu.be")) {
+      return `https://www.youtube-nocookie.com/embed/${url.pathname.slice(1)}`;
+    }
+    if (url.hostname.includes("youtube.com")) {
+      if (url.pathname.startsWith("/embed/")) {
+        return value;
+      }
+      const videoId = url.searchParams.get("v");
+      if (videoId) return `https://www.youtube-nocookie.com/embed/${videoId}`;
+    }
+  } catch {
+    return "";
+  }
+  return "";
+}
+
 export function WishingWellnessSite({
   content: initialContent,
 }: {
@@ -255,6 +275,55 @@ export function WishingWellnessSite({
         </div>
       </section>
 
+      <section className="testimonials-section" id="testimonials">
+        <div className="testimonials-title">
+          <p className="eyebrow">{content.testimonialsEyebrow}</p>
+          <h2>{content.testimonialsTitle}</h2>
+        </div>
+        <div className="testimonial-video-grid">
+          {content.testimonials.map((testimonial, index) => {
+            const embedUrl = youtubeEmbedUrl(testimonial.videoUrl);
+            return (
+              <article className="testimonial-video-card" key={`${testimonial.title}-${index}`}>
+                {embedUrl ? (
+                  <iframe
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    loading="lazy"
+                    src={embedUrl}
+                    title={testimonial.title}
+                  />
+                ) : (
+                  <a
+                    href={testimonial.videoUrl || "#appointment"}
+                    aria-label={`Watch ${testimonial.title}`}
+                  >
+                    {testimonial.imageSrc ? (
+                      <img
+                        src={testimonial.imageSrc}
+                        alt={testimonial.imageAlt || testimonial.title}
+                        style={photoStyle(testimonial)}
+                      />
+                    ) : (
+                      <div className="testimonial-placeholder" aria-hidden="true">
+                        <span>{testimonial.source.slice(0, 1) || "W"}</span>
+                      </div>
+                    )}
+                    <div className="testimonial-video-overlay">
+                      <div>
+                        <strong>{testimonial.title}</strong>
+                        <span>{testimonial.source}</span>
+                      </div>
+                      <span className="youtube-play" aria-hidden="true" />
+                    </div>
+                  </a>
+                )}
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
       <section className="section location-band" id="location">
         <div className="section-title">
           <p className="eyebrow">{content.locationEyebrow}</p>
@@ -467,6 +536,9 @@ export function WishingWellnessSite({
           <a href="/admin">Admin login</a>
         </div>
       </footer>
+      <a className="floating-book-tab" href="#appointment">
+        Book Appointment
+      </a>
     </main>
   );
 }

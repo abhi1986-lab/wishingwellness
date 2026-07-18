@@ -26,6 +26,12 @@ export type ClinicianContent = {
   focus: string;
 } & PhotoContent;
 
+export type TestimonialContent = {
+  title: string;
+  source: string;
+  videoUrl: string;
+} & PhotoContent;
+
 export type SiteContent = {
   brandName: string;
   heroEyebrow: string;
@@ -55,6 +61,9 @@ export type SiteContent = {
   teamTitle: string;
   teamText: string;
   clinicians: ClinicianContent[];
+  testimonialsEyebrow: string;
+  testimonialsTitle: string;
+  testimonials: TestimonialContent[];
   locationEyebrow: string;
   locationTitle: string;
   locationText: string;
@@ -190,6 +199,46 @@ export const defaultSiteContent: SiteContent = {
       name: "Sports Rehab Specialist",
       role: "ACL and return-to-sport programmes",
       focus: "Testing, progressive loading and performance confidence",
+    },
+  ],
+  testimonialsEyebrow: "Testimonials",
+  testimonialsTitle: "What Our Clients Say About Us",
+  testimonials: [
+    {
+      title: "Client testimonial | Learn more about integrated care",
+      source: "Wishing Wellness",
+      videoUrl: "",
+      imageSrc: "",
+      imageAlt: "Client testimonial video thumbnail",
+      imageFit: "cover",
+      imagePosition: "50% 50%",
+      imageBrightness: 92,
+      imageContrast: 105,
+      imageSaturation: 95,
+    },
+    {
+      title: "Sports recovery story | Patient experience",
+      source: "Wishing Wellness",
+      videoUrl: "",
+      imageSrc: "",
+      imageAlt: "Sports recovery testimonial video thumbnail",
+      imageFit: "cover",
+      imagePosition: "50% 50%",
+      imageBrightness: 92,
+      imageContrast: 105,
+      imageSaturation: 95,
+    },
+    {
+      title: "Why movement confidence matters",
+      source: "Wishing Wellness",
+      videoUrl: "",
+      imageSrc: "",
+      imageAlt: "Patient testimonial video thumbnail",
+      imageFit: "cover",
+      imagePosition: "50% 50%",
+      imageBrightness: 92,
+      imageContrast: 105,
+      imageSaturation: 95,
     },
   ],
   locationEyebrow: "Clinic",

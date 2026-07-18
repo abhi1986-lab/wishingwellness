@@ -270,6 +270,7 @@ function ContentEditor() {
   const [approachJson, setApproachJson] = useState(pretty(defaultSiteContent.approach));
   const [servicesJson, setServicesJson] = useState(pretty(defaultSiteContent.services));
   const [cliniciansJson, setCliniciansJson] = useState(pretty(defaultSiteContent.clinicians));
+  const [testimonialsJson, setTestimonialsJson] = useState(pretty(defaultSiteContent.testimonials));
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -283,6 +284,7 @@ function ContentEditor() {
     setApproachJson(pretty(content.approach));
     setServicesJson(pretty(content.services));
     setCliniciansJson(pretty(content.clinicians));
+    setTestimonialsJson(pretty(content.testimonials));
   }
 
   function update<K extends keyof SiteContent>(key: K, value: SiteContent[K]) {
@@ -330,6 +332,18 @@ function ContentEditor() {
       );
       setCliniciansJson(pretty(clinicians));
       return { ...current, clinicians };
+    });
+  }
+
+  function updateTestimonialPhoto(index: number, nextPhoto: PhotoContent) {
+    setDraft((current) => {
+      const testimonials = current.testimonials.map((testimonial, testimonialIndex) =>
+        testimonialIndex === index
+          ? { ...testimonial, ...nextPhoto }
+          : testimonial,
+      );
+      setTestimonialsJson(pretty(testimonials));
+      return { ...current, testimonials };
     });
   }
 
@@ -385,6 +399,7 @@ function ContentEditor() {
         approach: parseJson(approachJson, "Approach steps"),
         services: parseJson(servicesJson, "Services"),
         clinicians: parseJson(cliniciansJson, "Clinicians"),
+        testimonials: parseJson(testimonialsJson, "Testimonials"),
       });
     } catch (parseError) {
       setError(parseError instanceof Error ? parseError.message : "Invalid content");
@@ -564,6 +579,32 @@ function ContentEditor() {
               label={clinician.name}
               photo={clinician}
               onChange={(photo) => updateClinicianPhoto(index, photo)}
+              onUpload={uploadImage}
+            />
+          ))}
+        </div>
+        <label>
+          Testimonials eyebrow
+          <input value={draft.testimonialsEyebrow} onChange={(event) => update("testimonialsEyebrow", event.target.value)} />
+        </label>
+        <label>
+          Testimonials title
+          <input value={draft.testimonialsTitle} onChange={(event) => update("testimonialsTitle", event.target.value)} />
+        </label>
+        <label>
+          Testimonial video cards
+          <textarea value={testimonialsJson} onChange={(event) => setTestimonialsJson(event.target.value)} rows={14} />
+        </label>
+        <p className="editor-hint">
+          Add YouTube links in videoUrl. Use the thumbnail controls below to match the video-card style.
+        </p>
+        <div className="photo-editor-list">
+          {draft.testimonials.map((testimonial, index) => (
+            <ImageEditor
+              key={`${testimonial.title}-${index}`}
+              label={testimonial.title}
+              photo={testimonial}
+              onChange={(photo) => updateTestimonialPhoto(index, photo)}
               onUpload={uploadImage}
             />
           ))}
