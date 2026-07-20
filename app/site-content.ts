@@ -45,6 +45,7 @@ export type SiteContent = {
   heroImageBrightness: number;
   heroImageContrast: number;
   heroImageSaturation: number;
+  heroImageFade: boolean;
   heroTrust: string[];
   aboutEyebrow: string;
   aboutTitle: string;
@@ -105,6 +106,7 @@ export const defaultSiteContent: SiteContent = {
   heroImageBrightness: 100,
   heroImageContrast: 100,
   heroImageSaturation: 100,
+  heroImageFade: false,
   heroTrust: ["One Noida clinic", "Manual therapy", "Lead confirmation"],
   aboutEyebrow: "Why Wishing Wellness",
   aboutTitle: "Multidisciplinary assessment, one connected plan",

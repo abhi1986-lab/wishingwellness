@@ -579,6 +579,14 @@ function ContentEditor() {
             onUpload={uploadImage}
           />
         </label>
+        <label className="check content-toggle">
+          <input
+            checked={draft.heroImageFade}
+            onChange={(event) => update("heroImageFade", event.target.checked)}
+            type="checkbox"
+          />
+          Enable gradient fade on hero image
+        </label>
         <label>
           Hero trust badges
           <textarea value={heroTrustText} onChange={(event) => setHeroTrustText(event.target.value)} rows={4} />

@@ -173,7 +173,10 @@ export function WishingWellnessSite({
             ))}
           </div>
         </div>
-        <div className="hero-media" aria-label="Physiotherapy assessment">
+        <div
+          className={`hero-media ${content.heroImageFade ? "hero-media-fade" : ""}`}
+          aria-label="Physiotherapy assessment"
+        >
           <img
             src={content.heroImageSrc}
             alt={content.heroImageAlt}
