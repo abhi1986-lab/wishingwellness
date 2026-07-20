@@ -33,6 +33,7 @@ export type TestimonialContent = {
 } & PhotoContent;
 
 export type SiteContent = {
+  theme: "classic" | "mint";
   brandName: string;
   heroEyebrow: string;
   heroTitle: string;
@@ -91,6 +92,7 @@ export type SiteContent = {
 };
 
 export const defaultSiteContent: SiteContent = {
+  theme: "classic",
   brandName: "Wishing Wellness",
   heroEyebrow: "Integrated rehabilitation in Noida",
   heroTitle: "Move better. Live without persistent pain.",
@@ -279,12 +281,15 @@ export const defaultSiteContent: SiteContent = {
 
 export function mergeSiteContent(value: unknown): SiteContent {
   if (!value || typeof value !== "object") return defaultSiteContent;
+  const partial = value as Partial<SiteContent>;
+  const theme = partial.theme === "mint" ? "mint" : "classic";
   return {
     ...defaultSiteContent,
-    ...(value as Partial<SiteContent>),
+    ...partial,
+    theme,
     contact: {
       ...defaultSiteContent.contact,
-      ...((value as Partial<SiteContent>).contact ?? {}),
+      ...(partial.contact ?? {}),
     },
   };
 }

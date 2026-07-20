@@ -1,16 +1,41 @@
 @import "tailwindcss";
 
+:root,
+[data-theme="classic"] {
+  --color-bg: #F7F8F3;
+  --color-surface: #FFFFFF;
+  --color-primary: #1F3A2E;
+  --color-primary-hover: #162B22;
+  --color-primary-soft: #E8EFEA;
+  --color-text: #1A2E24;
+  --color-text-muted: #5A6B62;
+  --color-border: #D8E0DB;
+  --color-accent: #2F5A45;
+}
+
+[data-theme="mint"] {
+  --color-bg: #F0FDFA;
+  --color-surface: #FFFFFF;
+  --color-primary: #0F766E;
+  --color-primary-hover: #0D5C56;
+  --color-primary-soft: #CCFBF1;
+  --color-text: #134E4A;
+  --color-text-muted: #4B7C77;
+  --color-border: #99F6E4;
+  --color-accent: #14B8A6;
+}
+
 :root {
-  --background: #f7f8f3;
-  --surface: #ffffff;
-  --surface-soft: #edf4ef;
-  --ink: #17211b;
-  --muted: #5e6a63;
-  --line: #d9e1da;
-  --green: #316b4f;
-  --green-dark: #194533;
-  --mint: #cde5d5;
-  --blue: #426c89;
+  --background: var(--color-bg);
+  --surface: var(--color-surface);
+  --surface-soft: var(--color-primary-soft);
+  --ink: var(--color-text);
+  --muted: var(--color-text-muted);
+  --line: var(--color-border);
+  --green: var(--color-accent);
+  --green-dark: var(--color-primary);
+  --mint: var(--color-primary-soft);
+  --blue: var(--color-accent);
   --coral: #d97961;
   --gold: #d8b15f;
   --focus: #0d6efd;
@@ -64,7 +89,7 @@ textarea {
   justify-content: space-between;
   min-height: 88px;
   padding: 0 24px;
-  background: rgba(247, 248, 243, 0.92);
+  background: color-mix(in srgb, var(--background) 92%, transparent);
   border-bottom: 1px solid var(--line);
   backdrop-filter: blur(14px);
 }
@@ -142,13 +167,17 @@ textarea {
 
 .button.primary {
   color: white;
-  background: var(--green-dark);
+  background: var(--color-primary);
+}
+
+.button.primary:hover {
+  background: var(--color-primary-hover);
 }
 
 .button.secondary {
-  color: var(--green-dark);
+  color: var(--color-primary);
   background: var(--mint);
-  border-color: #b6d4c0;
+  border-color: var(--color-border);
 }
 
 .button.light {
@@ -366,7 +395,7 @@ h3 {
   border-radius: 6px;
   color: white;
   background:
-    linear-gradient(135deg, rgba(25, 69, 51, 0.92), rgba(66, 108, 137, 0.9)),
+    linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 92%, transparent), color-mix(in srgb, var(--color-accent) 85%, transparent)),
     var(--green);
   font-weight: 900;
 }
@@ -397,9 +426,9 @@ h3 {
   align-items: center;
   min-height: 72px;
   padding: 0 20px;
-  border: 1px solid #c9d8ce;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
-  background: #f8fbf8;
+  background: color-mix(in srgb, var(--color-primary-soft) 34%, white);
   color: var(--green-dark);
   font-weight: 850;
 }

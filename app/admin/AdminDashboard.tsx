@@ -525,6 +525,18 @@ function ContentEditor() {
       <section>
         <h2>Brand and hero</h2>
         <label>
+          Theme
+          <select
+            value={draft.theme}
+            onChange={(event) =>
+              update("theme", event.target.value as SiteContent["theme"])
+            }
+          >
+            <option value="classic">Classic</option>
+            <option value="mint">Mint</option>
+          </select>
+        </label>
+        <label>
           Brand name
           <input value={draft.brandName} onChange={(event) => update("brandName", event.target.value)} />
         </label>

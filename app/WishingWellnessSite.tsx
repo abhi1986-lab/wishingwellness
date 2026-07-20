@@ -62,6 +62,10 @@ export function WishingWellnessSite({
     setContent(initialContent);
   }, [initialContent]);
 
+  useEffect(() => {
+    document.documentElement.dataset.theme = content.theme;
+  }, [content.theme]);
+
   async function submitAppointment(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormError("");
