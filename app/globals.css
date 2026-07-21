@@ -94,6 +94,10 @@ textarea {
   backdrop-filter: blur(14px);
 }
 
+[data-theme="mint"] .site-header {
+  background: var(--color-surface);
+}
+
 .brand,
 .header-actions,
 .desktop-nav,
