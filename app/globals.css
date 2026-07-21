@@ -129,6 +129,7 @@ textarea {
   gap: 24px;
   color: var(--muted);
   font-size: 14px;
+  font-weight: 800;
 }
 
 .desktop-nav a:hover,
