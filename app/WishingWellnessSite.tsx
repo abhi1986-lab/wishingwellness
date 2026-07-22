@@ -161,12 +161,12 @@ export function WishingWellnessSite({
           <a className="phone-link" href={contact.phoneHref}>
             Call Noida
           </a>
-          <a className="button primary small" href="#appointment">
-            Book Appointment
+          <a className="button primary small" href="#callback">
+            Free Consultation
           </a>
         </div>
-        <a className="menu-button" href="#appointment" aria-label="Open booking">
-          Book
+        <a className="menu-button" href="#callback" aria-label="Open free consultation">
+          Consult
         </a>
       </header>
 
