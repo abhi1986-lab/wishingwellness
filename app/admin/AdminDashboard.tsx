@@ -541,6 +541,38 @@ function ContentEditor() {
           <input value={draft.brandName} onChange={(event) => update("brandName", event.target.value)} />
         </label>
         <label>
+          Logo
+          <ImageEditor
+            label="Brand logo"
+            photo={{
+              imageSrc: draft.brandLogoSrc,
+              imageAlt: draft.brandLogoAlt,
+              imageFit: draft.brandLogoFit,
+              imagePosition: draft.brandLogoPosition,
+              imageBrightness: draft.brandLogoBrightness,
+              imageContrast: draft.brandLogoContrast,
+              imageSaturation: draft.brandLogoSaturation,
+            }}
+            photoUrlLabel="Logo URL"
+            uploadLabel="Upload logo"
+            emptyLabel="No logo"
+            removeLabel="Remove logo"
+            onChange={(photo) => {
+              setDraft((current) => ({
+                ...current,
+                brandLogoSrc: photo.imageSrc ?? "",
+                brandLogoAlt: photo.imageAlt ?? "Wishing Wellness logo",
+                brandLogoFit: photo.imageFit ?? "contain",
+                brandLogoPosition: photo.imagePosition ?? "50% 50%",
+                brandLogoBrightness: photo.imageBrightness ?? 100,
+                brandLogoContrast: photo.imageContrast ?? 100,
+                brandLogoSaturation: photo.imageSaturation ?? 100,
+              }));
+            }}
+            onUpload={uploadImage}
+          />
+        </label>
+        <label>
           Hero eyebrow
           <input value={draft.heroEyebrow} onChange={(event) => update("heroEyebrow", event.target.value)} />
         </label>
@@ -849,6 +881,8 @@ function ImageEditor({
   fallbackLabel = "",
   photoUrlLabel = "Photo URL",
   uploadLabel = "Upload replacement photo",
+  emptyLabel = "No photo",
+  removeLabel,
   onChange,
   onUpload,
 }: {
@@ -858,6 +892,8 @@ function ImageEditor({
   fallbackLabel?: string;
   photoUrlLabel?: string;
   uploadLabel?: string;
+  emptyLabel?: string;
+  removeLabel?: string;
   onChange: (photo: PhotoContent) => void;
   onUpload: (file: File) => Promise<string>;
 }) {
@@ -903,7 +939,7 @@ function ImageEditor({
             }}
           />
         ) : (
-          <span>No photo</span>
+          <span>{emptyLabel}</span>
         )}
         {!photo.imageSrc && fallbackImageSrc && (
           <em className="image-editor-badge">{fallbackLabel}</em>
@@ -1012,7 +1048,7 @@ function ImageEditor({
           }
           type="button"
         >
-          {fallbackImageSrc ? "Remove custom thumbnail" : "Remove photo"}
+          {removeLabel ?? (fallbackImageSrc ? "Remove custom thumbnail" : "Remove photo")}
         </button>
       </div>
     </div>

@@ -130,7 +130,23 @@ export function WishingWellnessSite({
     <main>
       <header className="site-header">
         <a className="brand" href="#top" aria-label="Wishing Wellness home">
-          <span className="brand-mark">W</span>
+          <span className={`brand-mark ${content.brandLogoSrc ? "brand-mark-image" : ""}`}>
+            {content.brandLogoSrc ? (
+              <img
+                src={content.brandLogoSrc}
+                alt={content.brandLogoAlt}
+                style={photoStyle({
+                  imageFit: content.brandLogoFit,
+                  imagePosition: content.brandLogoPosition,
+                  imageBrightness: content.brandLogoBrightness,
+                  imageContrast: content.brandLogoContrast,
+                  imageSaturation: content.brandLogoSaturation,
+                })}
+              />
+            ) : (
+              "W"
+            )}
+          </span>
           <span>{content.brandName}</span>
         </a>
         <nav className="desktop-nav" aria-label="Primary navigation">

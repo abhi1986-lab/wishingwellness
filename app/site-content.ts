@@ -35,6 +35,13 @@ export type TestimonialContent = {
 export type SiteContent = {
   theme: "classic" | "mint";
   brandName: string;
+  brandLogoSrc: string;
+  brandLogoAlt: string;
+  brandLogoFit: "cover" | "contain";
+  brandLogoPosition: string;
+  brandLogoBrightness: number;
+  brandLogoContrast: number;
+  brandLogoSaturation: number;
   heroEyebrow: string;
   heroTitle: string;
   heroText: string;
@@ -95,6 +102,13 @@ export type SiteContent = {
 export const defaultSiteContent: SiteContent = {
   theme: "classic",
   brandName: "Wishing Wellness",
+  brandLogoSrc: "",
+  brandLogoAlt: "Wishing Wellness logo",
+  brandLogoFit: "contain",
+  brandLogoPosition: "50% 50%",
+  brandLogoBrightness: 100,
+  brandLogoContrast: 100,
+  brandLogoSaturation: 100,
   heroEyebrow: "Integrated rehabilitation in Noida",
   heroTitle: "Move better. Live without persistent pain.",
   heroText:
