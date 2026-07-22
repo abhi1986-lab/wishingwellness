@@ -158,9 +158,6 @@ export function WishingWellnessSite({
           <a href="#articles">Blogs</a>
         </nav>
         <div className="header-actions">
-          <a className="phone-link" href={contact.phoneHref}>
-            Call Noida
-          </a>
           <a className="button primary small" href="#callback">
             Free Consultation
           </a>
